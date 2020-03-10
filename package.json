@@ -1,0 +1,39 @@
+{
+  "name": "auto-garden-ts",
+  "version": "1.0.0",
+  "description": "automated garden tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feydan/auto-garden-ts.git"
+  },
+  "keywords": [
+    "garden",
+    "automated"
+  ],
+  "author": "Dan Fey",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/feydan/auto-garden-ts/issues"
+  },
+  "homepage": "https://github.com/feydan/auto-garden-ts#readme",
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.0",
+    "@types/request-promise": "^4.1.45",
+    "eslint": "^6.8.0",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "fp-ts": "^2.5.3",
+    "io-ts": "^2.1.2",
+    "io-ts-reporters": "^1.0.0",
+    "mqtt": "^3.0.0",
+    "request-promise": "^4.2.5"
+  }
+}

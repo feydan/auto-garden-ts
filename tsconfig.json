@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "lib": ["es2015"],
+    "outDir": "dist",
+    "strict": true,
+    "declaration": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": [
+      "./src/*"
+  ],
+  "exclude": [
+      "**/*.spec.ts"
+  ]
+}
