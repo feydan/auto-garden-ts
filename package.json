@@ -38,6 +38,7 @@
     "io-ts-reporters": "^1.2.2",
     "moment": "^2.27.0",
     "mqtt": "^3.0.0",
-    "request-promise": "^4.2.5"
+    "request-promise": "^4.2.5",
+    "bl": ">=1.2.3"
   }
 }
