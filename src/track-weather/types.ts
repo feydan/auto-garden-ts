@@ -34,3 +34,6 @@ export const OpenWeatherMapResponse = t.intersection([
   })
 ])
 export type OpenWeatherMapResponse = t.TypeOf<typeof OpenWeatherMapResponse>
+
+export const RainStore = t.record(t.number, t.number)
+export type RainStore = t.TypeOf<typeof RainStore>

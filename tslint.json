@@ -1,0 +1,17 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rules": {
+    "semicolon": [true, "never"],
+    "arrow-parens": [true, "ban-single-arg-parens"],
+    "quotemark": [true, "single", "avoid-escape"],
+    "object-literal-sort-keys": false,
+    "ordered-imports": false,
+    "interface-name": [false],
+    "file-name-casing": [true, "kebab-case"],
+    "no-console": [true, "log"],
+    "no-namespace": [true, "allow-declarations"],
+    "max-classes-per-file": false,
+    "variable-name": [true, "allow-leading-underscore", "allow-pascal-case"]
+  }
+}
