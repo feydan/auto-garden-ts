@@ -1,10 +1,10 @@
 import * as D from 'fp-ts/lib/Date'
 import * as E from 'fp-ts/lib/Either'
-import { pipe } from 'fp-ts/lib/function'
+import { constVoid, pipe } from 'fp-ts/lib/function'
 import * as R from 'fp-ts/lib/Record'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as fs from 'fs'
-import { decodeWith } from '../error-utils'
+import { decodeWith } from '../utils'
 import { RainStoreReadError, RainStoreWriteError } from './errors'
 import { RainStore } from './types'
 
@@ -70,7 +70,10 @@ const writeFile = (fileName = 'rain.json') => (rainStore: RainStore) =>
       pipe(
         TE.taskify(fs.writeFile),
         write => write(fileName, raw),
-        TE.mapLeft(l => new RainStoreWriteError(`Error writing ${fileName}`, l))
+        TE.mapLeft(
+          l => new RainStoreWriteError(`Error writing ${fileName}`, l)
+        ),
+        TE.map(constVoid)
       )
     )
   )
