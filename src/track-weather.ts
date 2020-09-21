@@ -1,4 +1,5 @@
 import { sequenceS } from 'fp-ts/lib/Apply'
+import { constVoid } from 'fp-ts/lib/function'
 import * as O from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as TE from 'fp-ts/lib/TaskEither'
@@ -18,7 +19,7 @@ const publishWeatherData = (data: WeatherData) =>
   pipe(
     getConfig(MqttEnvConfig),
     TE.fromEither,
-    TE.map(env =>
+    TE.chainW(env =>
       pipe(
         sequenceS(O.option)({
           MQTT_HOST: O.fromNullable(env.MQTT_HOST),
@@ -28,11 +29,13 @@ const publishWeatherData = (data: WeatherData) =>
           ...env,
           ...reqEnv,
         })),
-        O.map(reqEnv =>
-          mqttPublishWeather(mqttPublish(reqEnv))(
-            reqEnv.MQTT_WEATHER_TOPIC,
-            data
-          )
+        O.fold(
+          () => TE.rightIO(constVoid),
+          reqEnv =>
+            mqttPublishWeather(mqttPublish(reqEnv))(
+              reqEnv.MQTT_WEATHER_TOPIC,
+              data
+            )
         )
       )
     )
