@@ -5,14 +5,10 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { getConfig } from './config'
 import { mqttPublish } from './tools/mqtt'
-import { observe } from './tools/utils'
+import { MqttEnvConfig } from './tools/mqtt/types'
 import { getWeather, mqttPublishWeather } from './track-weather/index'
 import { storeRain1hMm } from './track-weather/rain-store'
-import {
-  MqttEnvConfig,
-  WeatherData,
-  WeatherEnvConfig,
-} from './track-weather/types'
+import { WeatherData, WeatherEnvConfig } from './track-weather/types'
 
 const storeRain = storeRain1hMm()
 

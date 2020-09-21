@@ -3,8 +3,8 @@ import { pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as mqtt from 'mqtt'
 import { IClientPublishOptions } from 'mqtt'
-import { MqttEnvConfig } from 'src/track-weather/types'
 import { MqttConnectError } from './errors'
+import { MqttEnvConfig } from './types'
 
 type EnvRequired = MqttEnvConfig & {
   MQTT_URL: string
