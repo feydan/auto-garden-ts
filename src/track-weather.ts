@@ -5,6 +5,7 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { getConfig } from './config'
 import { mqttPublish } from './tools/mqtt'
+import { observe } from './tools/utils'
 import { getWeather, mqttPublishWeather } from './track-weather/index'
 import { storeRain1hMm } from './track-weather/rain-store'
 import {
@@ -22,7 +23,7 @@ const publishWeatherData = (data: WeatherData) =>
     TE.chainW(env =>
       pipe(
         sequenceS(O.option)({
-          MQTT_HOST: O.fromNullable(env.MQTT_HOST),
+          MQTT_URL: O.fromNullable(env.MQTT_URL),
           MQTT_WEATHER_TOPIC: O.fromNullable(env.MQTT_WEATHER_TOPIC),
         }),
         O.map(reqEnv => ({

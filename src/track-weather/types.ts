@@ -8,7 +8,7 @@ export type WeatherEnvConfig = t.TypeOf<typeof WeatherEnvConfig>
 
 export const MqttEnvConfig = t.exact(
   t.partial({
-    MQTT_HOST: t.string,
+    MQTT_URL: t.string,
     MQTT_WEATHER_TOPIC: t.string,
     MQTT_USERNAME: t.string,
     MQTT_PASSWORD: t.string,

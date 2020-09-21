@@ -7,22 +7,26 @@ import { MqttEnvConfig } from 'src/track-weather/types'
 import { MqttConnectError } from './errors'
 
 type EnvRequired = MqttEnvConfig & {
-  MQTT_HOST: string
+  MQTT_URL: string
 }
 
 const getClient = (
   env: EnvRequired
 ): TE.TaskEither<MqttConnectError, mqtt.Client> => () =>
   new Promise(resolve => {
-    const client = mqtt.connect(env.MQTT_HOST, {
-      username: env.MQTT_USERNAME,
-      password: env.MQTT_PASSWORD,
-      clientId: env.MQTT_CLIENT_ID,
-    })
-    client.on('connect', () => resolve(E.right(client)))
-    client.on('error', e =>
+    try {
+      const client = mqtt.connect(env.MQTT_URL, {
+        username: env.MQTT_USERNAME,
+        password: env.MQTT_PASSWORD,
+        clientId: env.MQTT_CLIENT_ID,
+      })
+      client.on('connect', () => resolve(E.right(client)))
+      client.on('error', e =>
+        resolve(E.left(new MqttConnectError('Mqtt connect error', e)))
+      )
+    } catch (e) {
       resolve(E.left(new MqttConnectError('Mqtt connect error', e)))
-    )
+    }
   })
 
 const publishFn = (client: mqtt.Client) => (
@@ -37,7 +41,7 @@ const publishFn = (client: mqtt.Client) => (
       IClientPublishOptions,
       Error,
       mqtt.Packet
-    >(client.publish),
+    >(client.publish.bind(client)),
     p => p(topic, message, opts)
   )
 
@@ -58,4 +62,4 @@ export const mqttPublish = (env: EnvRequired) => (
     TE.map(client => client.end())
   )
 
-  export type MqttPublish = ReturnType<typeof mqttPublish>
+export type MqttPublish = ReturnType<typeof mqttPublish>
