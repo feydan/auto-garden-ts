@@ -6,10 +6,15 @@ export const WeatherEnvConfig = t.strict({
 })
 export type WeatherEnvConfig = t.TypeOf<typeof WeatherEnvConfig>
 
-export const MqttEnvConfig = t.strict({
-  MQTT_HOST: t.string,
-  MQTT_WEATHER_TOPIC: t.string,
-})
+export const MqttEnvConfig = t.exact(
+  t.partial({
+    MQTT_HOST: t.string,
+    MQTT_WEATHER_TOPIC: t.string,
+    MQTT_USERNAME: t.string,
+    MQTT_PASSWORD: t.string,
+    MQTT_CLIENT_ID: t.string,
+  })
+)
 export type MqttEnvConfig = t.TypeOf<typeof MqttEnvConfig>
 
 export const OpenWeatherMapResponse = t.exact(

@@ -1,19 +1,17 @@
 import * as A from 'fp-ts/lib/Array'
 import * as E from 'fp-ts/lib/Either'
-import { identity } from 'fp-ts/lib/function'
+import { constVoid, identity } from 'fp-ts/lib/function'
 import { monoidSum } from 'fp-ts/lib/Monoid'
 import * as NEA from 'fp-ts/lib/NonEmptyArray'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as R from 'fp-ts/lib/Record'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as moment from 'moment'
-import * as mqtt from 'mqtt'
 import * as rp from 'request-promise'
-import { MqttClient } from '../tools/mqtt'
+import { MqttPublish } from '../tools/mqtt'
 import { decodeWith } from '../tools/utils'
 import { TrackWeatherError } from './errors'
 import {
-  MqttEnvConfig,
   OpenWeatherMapResponse,
   RainStore,
   WeatherData,
@@ -55,14 +53,13 @@ export const getWeather = (
     }))
   )
 
-export const mqttPublishWeather = (
-  envConfig: MqttEnvConfig,
-  client: MqttClient
-) => (
+export const mqttPublishWeather = (mqttPublish: MqttPublish) => (
+  topic: string,
   weatherData: WeatherData
-): TE.TaskEither<TrackWeatherError, mqtt.Packet> =>
+): TE.TaskEither<TrackWeatherError, void> =>
   pipe(
-    client.publish(envConfig.MQTT_WEATHER_TOPIC, JSON.stringify(weatherData)),
+    mqttPublish(topic, JSON.stringify(weatherData)),
+    TE.map(constVoid),
     TE.mapLeft(e => new TrackWeatherError('MQTT Publish Error', e))
   )
 

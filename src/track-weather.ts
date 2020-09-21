@@ -1,16 +1,48 @@
+import { sequenceS } from 'fp-ts/lib/Apply'
+import * as O from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { getConfig } from './config'
-import { getWeather } from './track-weather/index'
+import { mqttPublish } from './tools/mqtt'
+import { getWeather, mqttPublishWeather } from './track-weather/index'
 import { storeRain1hMm } from './track-weather/rain-store'
-import { WeatherEnvConfig } from './track-weather/types'
+import {
+  MqttEnvConfig,
+  WeatherData,
+  WeatherEnvConfig,
+} from './track-weather/types'
 
 const storeRain = storeRain1hMm()
+
+const publishWeatherData = (data: WeatherData) =>
+  pipe(
+    getConfig(MqttEnvConfig),
+    TE.fromEither,
+    TE.map(env =>
+      pipe(
+        sequenceS(O.option)({
+          MQTT_HOST: O.fromNullable(env.MQTT_HOST),
+          MQTT_WEATHER_TOPIC: O.fromNullable(env.MQTT_WEATHER_TOPIC),
+        }),
+        O.map(reqEnv => ({
+          ...env,
+          ...reqEnv,
+        })),
+        O.map(reqEnv =>
+          mqttPublishWeather(mqttPublish(reqEnv))(
+            reqEnv.MQTT_WEATHER_TOPIC,
+            data
+          )
+        )
+      )
+    )
+  )
 
 pipe(
   getConfig(WeatherEnvConfig),
   TE.fromEither,
   TE.chainW(getWeather),
   TE.chainFirstW(({ rain1h }) => storeRain(rain1h)),
+  TE.chainFirstW(publishWeatherData),
   TE.bimap(console.dir, console.dir)
 )()
