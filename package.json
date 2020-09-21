@@ -4,6 +4,8 @@
   "description": "automated garden tools",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "track-weather": "ts-node -r dotenv/config src/track-weather.ts",
     "test": "jest"
   },
   "repository": {
@@ -33,13 +35,14 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "bl": ">=1.2.3",
+    "dotenv": "^8.2.0",
     "fp-ts": "^2.8.2",
     "io-ts": "^2.1.10",
     "io-ts-reporters": "^1.2.2",
+    "minimist": ">=0.2.1",
     "moment": "^2.27.0",
     "mqtt": "^3.0.0",
-    "request-promise": "^4.2.5",
-    "bl": ">=1.2.3",
-    "minimist": ">=0.2.1"
+    "request-promise": "^4.2.5"
   }
 }

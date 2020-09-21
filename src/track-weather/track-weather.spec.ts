@@ -1,5 +1,5 @@
 import * as D from 'fp-ts/lib/Date'
-import { didRainInPastTwoDays } from '.'
+import { didRainInPastTwoDays } from './index'
 
 describe('track-weather', () => {
   it('returns true when calling didRainInPastTwoDays is called rain data that meets the threshold', () => {

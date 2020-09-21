@@ -4,7 +4,7 @@ import { constVoid, pipe } from 'fp-ts/lib/function'
 import * as R from 'fp-ts/lib/Record'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as fs from 'fs'
-import { decodeWith } from '../utils'
+import { decodeWith } from '../tools/utils'
 import { RainStoreReadError, RainStoreWriteError } from './errors'
 import { RainStore } from './types'
 
@@ -39,7 +39,7 @@ export const _keepTwoDays = (store: RainStore): RainStore =>
 const readFile = (fileName = 'rain.json') =>
   pipe(
     TE.taskify(fs.readFile),
-    readfile => readfile(fileName),
+    read => read(fileName),
     TE.map(buffer => buffer.toString()),
     TE.orElse(l =>
       l.code === 'ENOENT'
@@ -50,13 +50,13 @@ const readFile = (fileName = 'rain.json') =>
 
 const parseFile = (raw: string) =>
   pipe(
-    raw === ''
+    raw !== ''
       ? E.parseJSON(
           raw,
           err => new RainStoreReadError(`Error parsing file`, E.toError(err))
         )
-      : E.right(''),
-    decodeWith(RainStore, RainStoreReadError)
+      : E.right({}),
+    E.chain(decodeWith(RainStore, RainStoreReadError))
   )
 
 const writeFile = (fileName = 'rain.json') => (rainStore: RainStore) =>

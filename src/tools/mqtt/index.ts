@@ -7,7 +7,7 @@ export const mqttClient = (client: mqtt.Client) => ({
   publish: (
     topic: string,
     message: string | Buffer,
-    opts?: IClientPublishOptions
+    opts: IClientPublishOptions = { qos: 0 }
   ) =>
     pipe(
       TE.taskify<

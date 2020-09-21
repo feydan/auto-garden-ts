@@ -8,12 +8,11 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": [
-      "./src/*"
-  ],
-  "exclude": [
-      "**/*.spec.ts"
-  ]
+  "include": ["./src/*"],
+  "exclude": ["**/*.spec.ts"]
 }
