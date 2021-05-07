@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as mqtt from 'mqtt'
 import { IClientPublishOptions } from 'mqtt'
-import { MqttConnectError } from './errors'
+import { MqttConnectError, MqttPublishError } from './errors'
 import { MqttEnvConfig } from './types'
 
 type EnvRequired = MqttEnvConfig & {
@@ -42,7 +42,8 @@ const publishFn = (client: mqtt.Client) => (
       Error,
       mqtt.Packet
     >(client.publish.bind(client)),
-    p => p(topic, message, opts)
+    p => p(topic, message, opts),
+    TE.mapLeft(e => new MqttPublishError('Mqtt publish error', e))
   )
 
 // Connects to mqtt with a TaskEither and then provides a

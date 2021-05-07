@@ -3,7 +3,7 @@ import * as O from 'fp-ts/lib/Option'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { MqttEnvConfig } from '../tools/mqtt/types'
-import { Gpio } from '../raspberry-pi/gpio'
+import { Gpio } from '../tools/raspberry-pi/gpio'
 import { sequenceS } from 'fp-ts/lib/Apply'
 import { mqttPublish } from '../tools/mqtt'
 import { RainStore } from '../track-weather/types'
@@ -11,14 +11,21 @@ import { didRainInPastTwoDays } from '../track-weather/index'
 import { observe } from '../tools/utils'
 import { InvalidMonthError } from './errors'
 import * as D from 'fp-ts/lib/Date'
+import { WaterEnvConfig } from './types'
 
-export const waterTheGarden = (gpio: Gpio, rainStore: RainStore, config: MqttEnvConfig) => (month: string, rainThreshold?: 5) => pipe(
+interface WaterTheGardenParams {
+  gpio: Gpio, 
+  rainStore: RainStore, 
+  config: MqttEnvConfig & WaterEnvConfig,
+}
+
+export const waterTheGarden = ({gpio, rainStore, config}: WaterTheGardenParams) => (month: string, rainThreshold?: 5) => pipe(
   rainThreshold,
   didRainInPastTwoDays(rainStore),
   shouldWater => !shouldWater 
     ? TE.rightIO(() => console.log('Not watering because it rained in the past two days')) 
     : pipe(
-      getWateringHours(month),
+      getWateringHours(month, config),
       TE.fromOption(() => new InvalidMonthError(`Invalid month: ${month}`)),
       TE.map(observe(hours => console.log(`Watering for ${hours} hours`))),
       TE.chainW(waterForHours(gpio)),
@@ -38,9 +45,23 @@ export const waterForHours = (gpio: Gpio) => (hours: number) => pipe(
   }))
 )
 
-const getWateringHours = (month: string) => pipe(
-  O.fromNullable(HOURS_PER_WEEK[month]),
-  O.map(hoursPerWeek => hoursPerWeek / DAYS_PER_WEEK)
+const getWateringHours = (month: string, config: WaterEnvConfig) => pipe(
+  {
+    January: config.HOURS_JANUARY,
+    February: config.HOURS_FEBRUARY,
+    March: config.HOURS_MARCH,
+    April: config.HOURS_APRIL,
+    May: config.HOURS_MAY,
+    June: config.HOURS_JUNE,
+    July: config.HOURS_JULY,
+    August: config.HOURS_AUGUST,
+    September: config.HOURS_SEPTEMBER,
+    October: config.HOURS_OCTOBER,
+    November: config.HOURS_NOVEMBER,
+    December: config.HOURS_DECEMBER,
+  },
+  (hoursPerWeek: Record<string, number>) => O.fromNullable(hoursPerWeek[month]),
+  O.map(hoursPerWeek => hoursPerWeek / config.DAYS_PER_WEEK)
 )
 
 interface PublishParams {
@@ -66,4 +87,5 @@ const publishMqtt = (config: MqttEnvConfig) => ({startTime, endTime, hours}: Pub
     TE.map(constVoid)
   )),
   O.getOrElse(() => TE.rightIO(constVoid))
-) 
+)
+
