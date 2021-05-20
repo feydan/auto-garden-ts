@@ -15,10 +15,10 @@ pipe(
   TE.chainFirstW(delay(2)),
 
   TE.map(observe(() => console.log('off'))),
-  TE.chainFirstW(g => T.delay(2)(g.write(false))),
+  TE.chainFirstW(g => g.write(false)),
   TE.chainFirstW(delay(2)),
   
   TE.map(observe(() => console.log('destroy'))),
-  TE.chainFirstW(g => T.delay(2)(g.destroy())),
+  TE.chainW(g => g.destroy()),
   TE.bimap(console.dir, console.dir)
 )()
