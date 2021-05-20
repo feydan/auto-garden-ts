@@ -2,8 +2,8 @@ import { constVoid } from 'fp-ts/lib/function'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
-import { observe } from 'src/tools/utils'
 import { gpio } from '../tools/raspberry-pi/gpio'
+import { observe } from '../tools/utils'
 
 const delay = (seconds: number) => () => T.delay(seconds * 1000)(TE.fromIO(constVoid))
 
