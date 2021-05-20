@@ -12,7 +12,7 @@ export const getRainStore = (fileName = 'rain.json') =>
   pipe(
     readFile(fileName),
     TE.chain(TE.fromEitherK(parseFile)),
-    TE.map(_keepTwoDays)
+    TE.map(_keepTwoDays(D.now()))
   )
 
 export const storeRain1hMm = (fileName = 'rain.json') => (rain1hmm: number) =>
@@ -25,14 +25,12 @@ export const storeRain1hMm = (fileName = 'rain.json') => (rain1hmm: number) =>
     TE.chainW(writeFile(fileName))
   )
 
-export const _keepTwoDays = (store: RainStore): RainStore =>
-  pipe(D.now(), now =>
-    pipe(
-      store,
-      // Remove any data 2 days old
-      R.filterWithIndex(
-        (timestamp, r) => Number(timestamp) >= now - 3600000 * 24 * 2
-      )
+export const _keepTwoDays = (nowTimestamp: number) => (store: RainStore): RainStore =>
+  pipe(
+    store,
+    // Remove any data 2 days old
+    R.filterWithIndex(
+      (timestamp, r) => Number(timestamp) >= nowTimestamp - 3600000 * 24 * 2
     )
   )
 

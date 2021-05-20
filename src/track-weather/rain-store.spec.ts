@@ -15,7 +15,7 @@ describe('rain-store', () => {
       [now]: 7,
     }
 
-    expect(_keepTwoDays(rainStore)).toStrictEqual({
+    expect(_keepTwoDays(now)(rainStore)).toStrictEqual({
       [now - 2 * oneDay]: 4,
       [now - oneDay]: 5,
       [now - oneDay + 1000]: 6,
