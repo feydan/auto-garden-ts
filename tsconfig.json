@@ -13,6 +13,6 @@
     "moduleResolution": "node",
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": ["./src/*", "src/tools/raspberry-pi"],
+  "include": ["./src/*", "./src/test/*"],
   "exclude": ["**/*.spec.ts"]
 }
