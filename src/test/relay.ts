@@ -7,18 +7,25 @@ import { observe } from '../tools/utils'
 
 const delay = <L>(seconds: number) => () => T.delay(seconds * 1000)(TE.fromIO<L, void>(constVoid))
 
+const testPin = (pin: number) =>
+  pipe(
+    console.log(`testing pin ${pin}`),
+    () => gpio(pin, 'out'),
+
+    TE.map(observe(() => console.log('on'))),
+    TE.chainFirstW(g => g.write(true)),
+    TE.chainFirst(delay(2)),
+
+    TE.map(observe(() => console.log('off'))),
+    TE.chainFirstW(g => g.write(false)),
+    TE.chainFirst(delay(2)),
+    
+    TE.map(observe(() => console.log('destroy'))),
+    TE.chainW(g => g.destroy()),
+    TE.bimap(console.dir, console.dir)
+  )
+
 pipe(
-  gpio(26, 'out'),
-
-  TE.map(observe(() => console.log('on'))),
-  TE.chainFirstW(g => g.write(true)),
-  TE.chainFirst(delay(2)),
-
-  TE.map(observe(() => console.log('off'))),
-  TE.chainFirstW(g => g.write(false)),
-  TE.chainFirst(delay(2)),
-  
-  TE.map(observe(() => console.log('destroy'))),
-  TE.chainW(g => g.destroy()),
-  TE.bimap(console.dir, console.dir)
+  [5, 6, 13, 26],
+  TE.traverseArray(testPin)
 )()

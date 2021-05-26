@@ -38,7 +38,7 @@
   "dependencies": {
     "bl": ">=1.2.3",
     "dotenv": "^8.2.0",
-    "fp-ts": "^2.8.2",
+    "fp-ts": "^2.10.5",
     "io-ts": "^2.1.10",
     "io-ts-reporters": "^1.2.2",
     "io-ts-types": "^0.5.16",
