@@ -1,5 +1,5 @@
 import * as D from 'fp-ts/lib/Date'
-import { pipe } from 'fp-ts/lib/pipeable'
+import { pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as t from 'io-ts'
 import { getConfig } from './config'
@@ -9,7 +9,7 @@ import { getRainStore } from './track-weather/rain-store'
 import { waterTheGarden } from './water/index'
 import { WaterEnvConfig } from './water/types'
 
-const initWaterTheGarden = pipe(
+const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) => pipe(
   getRainStore(),
   TE.bindTo('rainStore'),
   TE.bindW('config', () => pipe(
@@ -17,15 +17,20 @@ const initWaterTheGarden = pipe(
     getConfig, 
     TE.fromEither
   )),
-  TE.bindW('gpio', ({config}) => gpio(config.GPIO_PIN, config.GPIO_DIRECTION)),
-  TE.map(waterTheGarden)
+  TE.chainW(context => pipe(
+    context.config.GPIO_PINS,
+    TE.traverseSeqArray(pin => pipe(
+      gpio(pin, context.config.GPIO_DIRECTION),
+      TE.chainW(g => waterTheGarden({
+        ...context,
+        gpio: g
+      })(month, rainThreshold))
+    )
+  ))),
 )
 
 pipe(
-  initWaterTheGarden,
-  TE.chainW(waterFn => pipe(
-    D.create().toLocaleString('default', { month: 'long' }),
-    waterFn
-  )),
+  D.create().toLocaleString('default', { month: 'long' }),
+  doWaterTheGarden,
   TE.bimap(console.dir, console.dir)
 )()

@@ -1,8 +1,9 @@
 import * as t from 'io-ts'
-import {NumberFromString} from 'io-ts-types/NumberFromString'
+import { NumberFromString } from 'io-ts-types/NumberFromString'
+import { commaSeparatedNumberList } from '../tools/io-ts-types'
 
 export const WaterEnvConfig = t.strict({
-    GPIO_PIN: NumberFromString,
+    GPIO_PINS: commaSeparatedNumberList,
     GPIO_DIRECTION: t.keyof({
       in: true,
       out: true,
