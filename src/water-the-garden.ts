@@ -11,6 +11,7 @@ import { WaterEnvConfig } from './water/types'
 
 process.on('exit', async () => await gpioDestroy()())
 process.on('SIGTERM', async () => await gpioDestroy()())
+process.on('SIGINT', async () => await gpioDestroy()())
 
 const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) => pipe(
   getRainStore(),
