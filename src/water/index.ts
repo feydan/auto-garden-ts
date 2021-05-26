@@ -38,7 +38,6 @@ export const waterForHours = (gpio: Gpio) => (hours: number) => pipe(
   TE.rightIO(D.now),
   TE.chainFirst(() => gpio.write(true)),
   TE.chainFirst(() => T.delay(hours * 1000 * 60 * 60)(gpio.write(false))),
-  TE.chainFirstW(() => gpio.destroy()),
   TE.map(startTime => ({
     startTime,
     endTime: D.now(),

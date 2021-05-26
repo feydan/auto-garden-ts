@@ -4,10 +4,12 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as t from 'io-ts'
 import { getConfig } from './config'
 import { MqttEnvConfig } from './tools/mqtt/types'
-import { gpio } from './tools/raspberry-pi/gpio'
+import { gpio, gpioDestroy } from './tools/raspberry-pi/gpio'
 import { getRainStore } from './track-weather/rain-store'
 import { waterTheGarden } from './water/index'
 import { WaterEnvConfig } from './water/types'
+
+process.on('exit', async () => gpioDestroy()())
 
 const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) => pipe(
   getRainStore(),
@@ -27,6 +29,7 @@ const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) => pipe(
       })(month, rainThreshold))
     )
   ))),
+  TE.chainW(() => gpioDestroy())
 )
 
 pipe(

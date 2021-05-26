@@ -18,7 +18,7 @@ const publishWeatherData = (data: WeatherData) =>
     TE.fromEither,
     TE.chainW(env =>
       pipe(
-        sequenceS(O.option)({
+        sequenceS(O.Monad)({
           MQTT_URL: O.fromNullable(env.MQTT_URL),
           MQTT_WEATHER_TOPIC: O.fromNullable(env.MQTT_WEATHER_TOPIC),
         }),
