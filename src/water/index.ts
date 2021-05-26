@@ -1,16 +1,16 @@
+import { sequenceS } from 'fp-ts/lib/Apply'
+import * as D from 'fp-ts/lib/Date'
 import { constVoid, pipe } from 'fp-ts/lib/function'
 import * as O from 'fp-ts/lib/Option'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
+import { mqttPublish } from '../tools/mqtt'
 import { MqttEnvConfig } from '../tools/mqtt/types'
 import { Gpio } from '../tools/raspberry-pi/gpio'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { mqttPublish } from '../tools/mqtt'
-import { RainStore } from '../track-weather/types'
-import { didRainInPastTwoDays } from '../track-weather/index'
 import { observe } from '../tools/utils'
+import { didRainInPastTwoDays } from '../track-weather/index'
+import { RainStore } from '../track-weather/types'
 import { InvalidMonthError } from './errors'
-import * as D from 'fp-ts/lib/Date'
 import { WaterEnvConfig } from './types'
 
 interface WaterTheGardenParams {
@@ -22,7 +22,7 @@ interface WaterTheGardenParams {
 export const waterTheGarden = ({gpio, rainStore, config}: WaterTheGardenParams) => (month: string, rainThreshold?: 5) => pipe(
   rainThreshold,
   didRainInPastTwoDays(rainStore),
-  shouldWater => !shouldWater 
+  didRain => didRain 
     ? TE.rightIO(() => console.log('Not watering because it rained in the past two days')) 
     : pipe(
       getWateringHours(month, config),

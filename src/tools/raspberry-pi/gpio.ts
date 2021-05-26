@@ -1,13 +1,12 @@
-import * as rpigpio from 'rpi-gpio'
-import * as TE from 'fp-ts/lib/TaskEither'
-import * as E from 'fp-ts/lib/Either'
-import { 
-  RaspberryPiSetupError, 
-  RaspberryPiReadError, 
-  RaspberryPiWriteError,
-  RaspberryPiDestroyError 
-} from './errors';
+import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/function';
+import * as TE from 'fp-ts/lib/TaskEither';
+import * as rpigpio from 'rpi-gpio';
+import {
+  RaspberryPiDestroyError, RaspberryPiReadError, RaspberryPiSetupError,
+
+  RaspberryPiWriteError
+} from './errors';
 
 rpigpio.setMode('mode_bcm')
 
@@ -35,6 +34,11 @@ export const gpio = (channel: number, direction: PinDirection) =>
       ),
     }))
   )
+
+export const gpioDestroy = () => TE.tryCatch(
+  gpiop.destroy, 
+  e => new RaspberryPiDestroyError('rpi destroy error', E.toError(e))
+)
 
 export interface Gpio {
   read: () => TE.TaskEither<RaspberryPiReadError, boolean>
