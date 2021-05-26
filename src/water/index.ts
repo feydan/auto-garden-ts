@@ -37,7 +37,8 @@ export const waterTheGarden = ({gpio, rainStore, config}: WaterTheGardenParams) 
 export const waterForHours = (gpio: Gpio) => (hours: number) => pipe(
   TE.rightIO(D.now),
   TE.chainFirst(() => gpio.write(true)),
-  TE.chainFirst(() => T.delay(hours)(gpio.write(false))),
+  TE.chainFirst(() => T.delay(hours * 1000 * 60 * 60)(gpio.write(false))),
+  TE.chainFirstW(() => gpio.destroy()),
   TE.map(startTime => ({
     startTime,
     endTime: D.now(),
@@ -70,7 +71,7 @@ interface PublishParams {
   hours: number
 }
 const publishMqtt = (config: MqttEnvConfig) => ({startTime, endTime, hours}: PublishParams) => pipe(
-  sequenceS(O.option)({
+  sequenceS(O.Monad)({
     MQTT_URL: O.fromNullable(config.MQTT_URL),
     MQTT_WATERING_TOPIC: O.fromNullable(config.MQTT_WATERING_TOPIC),
   }),
