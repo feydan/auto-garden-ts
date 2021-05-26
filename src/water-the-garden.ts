@@ -9,7 +9,8 @@ import { getRainStore } from './track-weather/rain-store'
 import { waterTheGarden } from './water/index'
 import { WaterEnvConfig } from './water/types'
 
-process.on('exit', async () => gpioDestroy()())
+process.on('exit', async () => await gpioDestroy()())
+process.on('SIGTERM', async () => await gpioDestroy()())
 
 const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) => pipe(
   getRainStore(),
