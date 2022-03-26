@@ -42,7 +42,7 @@
     "io-ts": "^2.1.10",
     "io-ts-reporters": "^1.2.2",
     "io-ts-types": "^0.5.16",
-    "minimist": ">=0.2.1",
+    "minimist": ">=1.2.6",
     "moment": "^2.27.0",
     "mqtt": "^3.0.0",
     "request-promise": "^4.2.5",
