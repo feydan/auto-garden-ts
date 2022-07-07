@@ -43,7 +43,7 @@
     "io-ts-reporters": "^1.2.2",
     "io-ts-types": "^0.5.16",
     "minimist": ">=0.2.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "mqtt": "^3.0.0",
     "request-promise": "^4.2.5",
     "rpi-gpio": "^2.1.7"
