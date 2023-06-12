@@ -25,7 +25,6 @@
   "devDependencies": {
     "@types/jest": "^25.2.3",
     "@types/node": "^13.9.0",
-    "@types/request-promise": "^4.1.45",
     "@types/rpi-gpio": "^2.1.1",
     "eslint": "^7.25.0",
     "jest": "^26.4.2",
@@ -36,16 +35,16 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "bl": ">=1.2.3",
+    "date-fns": "^2.30.0",
     "dotenv": "^8.2.0",
-    "fp-ts": "^2.10.5",
-    "io-ts": "^2.1.10",
-    "io-ts-reporters": "^1.2.2",
-    "io-ts-types": "^0.5.16",
+    "fp-ts": "^2.16.0",
+    "io-ts": "^2.2.2",
+    "io-ts-reporters": "^2.0.1",
+    "io-ts-types": "^0.5.19",
     "minimist": ">=0.2.1",
-    "moment": "^2.27.0",
     "mqtt": "^3.0.0",
-    "request-promise": "^4.2.5",
     "rpi-gpio": "^2.1.7"
   }
 }
