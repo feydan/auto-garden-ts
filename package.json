@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/feydan/auto-garden-ts#readme",
   "devDependencies": {
-    "@types/jest": "^25.2.3",
+    "@types/jest": "^29",
     "@types/node": "^13.9.0",
     "@types/rpi-gpio": "^2.1.1",
     "eslint": "^7.25.0",
@@ -32,19 +32,18 @@
     "ts-jest": "^29",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^4.0.2"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "axios": "^1.4.0",
-    "bl": ">=1.2.3",
-    "date-fns": "^2.30.0",
+    "axios": "^1.6.8",
+    "date-fns": "^3.6.0",
     "dotenv": "^8.2.0",
-    "fp-ts": "^2.16.0",
-    "io-ts": "^2.2.2",
+    "fp-ts": "^2.16.5",
+    "io-ts": "^2.2.20",
     "io-ts-reporters": "^2.0.1",
     "io-ts-types": "^0.5.19",
     "logging-ts": "^0.3.4",
-    "minimist": ">=0.2.1",
+    "minimist": "^1.2.8",
     "mqtt": "^3.0.0",
     "rpi-gpio": "^2.1.7"
   }
