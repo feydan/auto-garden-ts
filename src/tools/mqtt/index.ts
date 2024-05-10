@@ -25,7 +25,7 @@ const getClient = (
         resolve(E.left(new MqttConnectError('Mqtt connect error', e)))
       )
     } catch (e) {
-      resolve(E.left(new MqttConnectError('Mqtt connect error', e)))
+      resolve(E.left(new MqttConnectError('Mqtt connect error', E.toError(e))))
     }
   })
 
@@ -52,6 +52,7 @@ export const mqttClient = (env: EnvRequired) =>
   pipe(getClient(env), TE.map(publishFn))
 
 // Connects to mqtt, publishes once, and then severs the connection
+export type MqttError = MqttConnectError | MqttPublishError
 export const mqttPublish = (env: EnvRequired) => (
   topic: string,
   message: string | Buffer,

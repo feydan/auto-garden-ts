@@ -71,7 +71,7 @@ export const didRainInPastTwoDays = (thresholdMm = 5) =>
         rainStore,
         // Create a key based on day and hour
         R.collect(str.Ord)((timestamp, rainMM) => ({
-          dayHour: format(new Date(timestamp), "DD-hh"),
+          dayHour: format(new Date(Number(timestamp)), "dd-hh"),
           rainMM
         })),
         // Group by dayHour key

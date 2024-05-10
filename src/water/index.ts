@@ -1,17 +1,18 @@
+import * as Rdr from "fp-ts/Reader"
+import * as RTE from "fp-ts/ReaderTaskEither"
 import { sequenceS } from "fp-ts/lib/Apply"
 import * as D from "fp-ts/lib/Date"
-import { constVoid, pipe } from "fp-ts/lib/function"
 import * as O from "fp-ts/lib/Option"
 import * as T from "fp-ts/lib/Task"
 import * as TE from "fp-ts/lib/TaskEither"
-import * as Rdr from "fp-ts/Reader"
-import * as RTE from "fp-ts/ReaderTaskEither"
+import { constVoid, pipe } from "fp-ts/lib/function"
+import { info } from "src/tools/logger/index"
+import { Logger } from "src/tools/logger/types"
 import { MqttConnectError, MqttPublishError } from "src/tools/mqtt/errors"
 import { RaspberryPiWriteError } from "src/tools/raspberry-pi/errors"
 import { mqttPublish } from "../tools/mqtt"
 import { MqttEnvConfig } from "../tools/mqtt/types"
 import { Gpio } from "../tools/raspberry-pi/gpio"
-import { observe } from "../tools/utils"
 import { didRainInPastTwoDays } from "../track-weather/index"
 import { RainStore } from "../track-weather/types"
 import { InvalidMonthError } from "./errors"
@@ -21,6 +22,7 @@ export interface WaterTheGardenParams {
   gpio: Gpio
   rainStore: RainStore
   config: MqttEnvConfig & WaterEnvConfig
+  logger: Logger
 }
 
 export type WaterTheGardenError =
@@ -34,34 +36,31 @@ export const waterTheGarden = (
   rainThreshold?: 5
 ): RTE.ReaderTaskEither<WaterTheGardenParams, WaterTheGardenError, void> =>
   pipe(
-    pipe(
-      rainThreshold,
-      didRainInPastTwoDays,
-      RTE.rightReader,
-      RTE.chainW(didRain =>
-        didRain
-          ? RTE.rightIO(() =>
-              console.log("Not watering because it rained in the past two days")
-            )
-          : pipe(
-              getWateringHours(month),
-              Rdr.map(
-                TE.fromOption(
-                  () => new InvalidMonthError(`Invalid month: ${month}`)
-                )
-              ),
-              RTE.map(
-                observe(hours => console.log(`Watering for ${hours} hours`))
-              ),
-              RTE.chainW(waterForHours),
-              RTE.map(
-                observe(({ hours }) =>
-                  console.log(`Watered for ${hours} hours`)
-                )
-              ),
-              RTE.chainW(publishMqtt)
-            )
-      )
+    rainThreshold,
+    didRainInPastTwoDays,
+    RTE.rightReader,
+    RTE.chainW(didRain =>
+      didRain
+        ? pipe(
+            info("Not watering because it rained in the past two days"),
+            Rdr.map(TE.fromIO)
+          )
+        : pipe(
+            getWateringHours(month),
+            Rdr.map(
+              TE.fromOption(
+                () => new InvalidMonthError(`Invalid month: ${month}`)
+              )
+            ),
+            RTE.chainFirstReaderIOKW(hours =>
+              info(`Watering for ${hours} hours`)
+            ),
+            RTE.chainW(waterForHours),
+            RTE.chainFirstReaderIOKW(({ hours }) =>
+              info(`Watered for ${hours} hours`)
+            ),
+            RTE.chainW(publishMqtt)
+          )
     )
   )
 
