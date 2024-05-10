@@ -1,4 +1,4 @@
-import { pipe } from 'fp-ts/lib/pipeable'
+import { flow, pipe } from 'fp-ts/lib/function'
 import * as t from 'io-ts'
 import { decodeWith } from '../tools/utils'
 import { ConfigError } from './errors'

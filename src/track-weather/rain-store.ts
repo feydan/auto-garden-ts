@@ -1,3 +1,4 @@
+import * as J from 'fp-ts/Json'
 import * as D from 'fp-ts/lib/Date'
 import * as E from 'fp-ts/lib/Either'
 import { constVoid, pipe } from 'fp-ts/lib/function'
@@ -49,9 +50,9 @@ const readFile = (fileName = 'rain.json') =>
 const parseFile = (raw: string) =>
   pipe(
     raw !== ''
-      ? E.parseJSON(
-          raw,
-          err => new RainStoreReadError(`Error parsing file`, E.toError(err))
+      ? pipe(
+          J.parse(raw),
+          E.mapLeft(err => new RainStoreReadError(`Error parsing file`, E.toError(err)))
         )
       : E.right({}),
     E.chain(decodeWith(RainStore, RainStoreReadError))
@@ -59,10 +60,8 @@ const parseFile = (raw: string) =>
 
 const writeFile = (fileName = 'rain.json') => (rainStore: RainStore) =>
   pipe(
-    E.stringifyJSON(
-      rainStore,
-      e => new RainStoreWriteError(`Error writing ${fileName}`, E.toError(e))
-    ),
+    J.stringify(rainStore),
+    E.mapLeft(e => new RainStoreWriteError(`Error writing ${fileName}`, E.toError(e))),
     TE.fromEither,
     TE.chain(raw =>
       pipe(
