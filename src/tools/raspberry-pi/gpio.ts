@@ -39,7 +39,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
         write: (state: boolean) =>
           pipe(
             E.tryCatch(
-              state ? pin.on() : pin.off(),
+              () => state ? pin.on() : pin.off(),
               e => new RaspberryPiWriteError("rpi write error", E.toError(e))
             ),
             TE.fromEither
@@ -47,7 +47,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
         destroy: () =>
           pipe(
             E.tryCatch(
-              pin.close(),
+              () => pin.close(),
               e =>
                 new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
             ),
