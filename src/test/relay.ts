@@ -1,6 +1,6 @@
-import { constVoid, pipe } from "fp-ts/lib/function"
 import * as T from "fp-ts/lib/Task"
 import * as TE from "fp-ts/lib/TaskEither"
+import { constVoid, pipe } from "fp-ts/lib/function"
 import { gpio, gpioDestroy } from "../tools/raspberry-pi/gpio"
 import { observe } from "../tools/utils"
 
@@ -26,7 +26,7 @@ const testPin = (pin: number) =>
 
 pipe(
   pins,
-  TE.traverseArray(testPin),
+  TE.traverseSeqArray(testPin),
   TE.chainW(() => gpioDestroy()),
   TE.bimap(console.dir, console.dir)
 )()
