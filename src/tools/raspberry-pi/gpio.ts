@@ -1,4 +1,3 @@
-import * as arrgpio from "array-gpio"
 import * as E from "fp-ts/lib/Either"
 import * as IO from "fp-ts/lib/IO"
 import * as TE from "fp-ts/lib/TaskEither"
@@ -9,6 +8,8 @@ import {
   RaspberryPiSetupError,
   RaspberryPiWriteError
 } from "./errors"
+
+const arrgpio = require("array-gpio")
 
 export type PinDirection = "in" | "out"
 
@@ -26,9 +27,9 @@ export const gpio = (channel: number, direction: PinDirection) =>
     ),
     TE.fromEither,
     TE.map(
-      (): Gpio => ({
+      (pin): Gpio => ({
         read: pipe(
-          TE.taskify(arrgpio.read),
+          TE.taskify(pin.read),
           IO.map(
             TE.mapLeft(
               e => new RaspberryPiReadError("rpi read error", E.toError(e))
@@ -38,7 +39,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
         write: (state: boolean) =>
           pipe(
             E.tryCatch(
-              state ? arrgpio.on() : arrgpio.off(),
+              state ? pin.on() : pin.off(),
               e => new RaspberryPiWriteError("rpi write error", E.toError(e))
             ),
             TE.fromEither
@@ -46,7 +47,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
         destroy: () =>
           pipe(
             E.tryCatch(
-              arrgpio.close(),
+              pin.close(),
               e =>
                 new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
             ),
