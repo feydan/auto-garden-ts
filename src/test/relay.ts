@@ -27,5 +27,6 @@ const testPin = (pin: number) =>
 pipe(
   pins,
   TE.traverseArray(testPin),
-  TE.chainW(() => gpioDestroy())
+  TE.chainW(() => gpioDestroy()),
+  TE.bimap(console.dir, console.dir)
 )()
