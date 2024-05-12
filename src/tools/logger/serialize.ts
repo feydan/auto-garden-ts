@@ -11,11 +11,12 @@ export const serialize = (options: DisplayOptions) => (
   const timestamp = options.displayTimestamps
     ? new Date(time()).toLocaleString()
     : ""
-  const meta = options.displayMetadata
-    ? pipe(
-        J.stringify(entry.metadata),
-        E.getOrElse(l => String(l))
-      )
-    : ""
-  return `${level} ${timestamp} ${entry.message} ${meta}`
+  const meta =
+    options.displayMetadata && entry.metadata
+      ? pipe(
+          J.stringify(entry.metadata),
+          E.getOrElse(l => String(l))
+        )
+      : ""
+  return [level, timestamp, entry.message, meta].join(" ")
 }

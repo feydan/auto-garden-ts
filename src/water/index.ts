@@ -67,7 +67,7 @@ export const waterTheGarden = (
 export const waterForHours = (hours: number) =>
   pipe(
     RTE.ask<{ gpio: Gpio }>(),
-    RTE.chainW(({ gpio }) =>
+    RTE.chainTaskEitherK(({ gpio }) =>
       pipe(
         TE.rightIO(D.now),
         TE.chainFirst(() => gpio.write(true)),
@@ -77,7 +77,6 @@ export const waterForHours = (hours: number) =>
           endTime: D.now(),
           hours
         })),
-        RTE.fromTaskEither
       )
     )
   )

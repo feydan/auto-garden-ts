@@ -1,5 +1,6 @@
 import * as E from "fp-ts/lib/Either"
 import * as IO from "fp-ts/lib/IO"
+import * as T from "fp-ts/lib/Task"
 import * as TE from "fp-ts/lib/TaskEither"
 import { pipe } from "fp-ts/lib/function"
 import {
@@ -29,7 +30,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
     TE.map(
       (pin): Gpio => ({
         read: pipe(
-          TE.taskify(pin.read),
+          TE.taskify(pin.read.bind(pin)),
           IO.map(
             TE.mapLeft(
               e => new RaspberryPiReadError("rpi read error", E.toError(e))
@@ -37,21 +38,19 @@ export const gpio = (channel: number, direction: PinDirection) =>
           )
         ),
         write: (state: boolean) =>
-          pipe(
+          T.fromIO(() =>
             E.tryCatch(
-              () => state ? pin.on() : pin.off(),
+              () => (state ? pin.on() : pin.off()),
               e => new RaspberryPiWriteError("rpi write error", E.toError(e))
-            ),
-            TE.fromEither
+            )
           ),
         destroy: () =>
-          pipe(
+          T.fromIO(() =>
             E.tryCatch(
               () => pin.close(),
               e =>
                 new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
-            ),
-            TE.fromEither
+            )
           )
       })
     )
