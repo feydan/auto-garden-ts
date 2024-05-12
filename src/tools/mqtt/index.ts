@@ -1,10 +1,10 @@
-import * as E from 'fp-ts/lib/Either'
-import { pipe } from 'fp-ts/lib/function'
-import * as TE from 'fp-ts/lib/TaskEither'
-import * as mqtt from 'mqtt'
-import { IClientPublishOptions } from 'mqtt'
-import { MqttConnectError, MqttPublishError } from './errors'
-import { MqttEnvConfig } from './types'
+import * as E from "fp-ts/lib/Either"
+import * as TE from "fp-ts/lib/TaskEither"
+import { pipe } from "fp-ts/lib/function"
+import * as mqtt from "mqtt"
+import { type IClientPublishOptions, type MqttClient } from "mqtt"
+import { MqttConnectError, MqttPublishError } from "./errors"
+import { MqttEnvConfig } from "./types"
 
 type EnvRequired = MqttEnvConfig & {
   MQTT_URL: string
@@ -12,24 +12,24 @@ type EnvRequired = MqttEnvConfig & {
 
 const getClient = (
   env: EnvRequired
-): TE.TaskEither<MqttConnectError, mqtt.Client> => () =>
+): TE.TaskEither<MqttConnectError, MqttClient> => () =>
   new Promise(resolve => {
     try {
       const client = mqtt.connect(env.MQTT_URL, {
         username: env.MQTT_USERNAME,
         password: env.MQTT_PASSWORD,
-        clientId: env.MQTT_CLIENT_ID,
+        clientId: env.MQTT_CLIENT_ID
       })
-      client.on('connect', () => resolve(E.right(client)))
-      client.on('error', e =>
-        resolve(E.left(new MqttConnectError('Mqtt connect error', e)))
+      client.on("connect", () => resolve(E.right(client)))
+      client.on("error", e =>
+        resolve(E.left(new MqttConnectError("Mqtt connect error", e)))
       )
     } catch (e) {
-      resolve(E.left(new MqttConnectError('Mqtt connect error', E.toError(e))))
+      resolve(E.left(new MqttConnectError("Mqtt connect error", E.toError(e))))
     }
   })
 
-const publishFn = (client: mqtt.Client) => (
+const publishFn = (client: MqttClient) => (
   topic: string,
   message: string | Buffer,
   opts: IClientPublishOptions = { qos: 0 }
@@ -43,7 +43,7 @@ const publishFn = (client: mqtt.Client) => (
       mqtt.Packet
     >(client.publish.bind(client)),
     p => p(topic, message, opts),
-    TE.mapLeft(e => new MqttPublishError('Mqtt publish error', e))
+    TE.mapLeft(e => new MqttPublishError("Mqtt publish error", e))
   )
 
 // Connects to mqtt with a TaskEither and then provides a

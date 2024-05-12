@@ -1,47 +1,69 @@
-import * as E from 'fp-ts/lib/Either';
-import { pipe } from 'fp-ts/lib/function';
-import * as TE from 'fp-ts/lib/TaskEither';
-import * as rpigpio from 'rpi-gpio';
+import * as E from "fp-ts/lib/Either"
+import * as IO from "fp-ts/lib/IO"
+import * as T from "fp-ts/lib/Task"
+import * as TE from "fp-ts/lib/TaskEither"
+import { pipe } from "fp-ts/lib/function"
 import {
-  RaspberryPiDestroyError, RaspberryPiReadError, RaspberryPiSetupError,
-
+  RaspberryPiDestroyError,
+  RaspberryPiReadError,
+  RaspberryPiSetupError,
   RaspberryPiWriteError
-} from './errors';
+} from "./errors"
 
-rpigpio.setMode('mode_bcm')
+const arrgpio = require("array-gpio")
 
-const gpiop = rpigpio.promise
-export type PinDirection = 'in' | 'out' | 'low' | 'high';
+export type PinDirection = "in" | "out"
 
+/**
+ *
+ * @param channel This is based on RPI board's pinout diagram number 1~40
+ * @param direction
+ * @returns
+ */
 export const gpio = (channel: number, direction: PinDirection) =>
   pipe(
-    TE.tryCatch(
-      () => gpiop.setup(channel, direction), 
-      e => new RaspberryPiSetupError('rpi setup error', E.toError(e))
+    E.tryCatch(
+      () => arrgpio[direction](channel),
+      e => new RaspberryPiSetupError("rpi setup error", E.toError(e))
     ),
-    TE.map((): Gpio => ({
-      read: () => TE.tryCatch(
-        () => gpiop.read(channel), 
-        e => new RaspberryPiReadError('rpi read error', E.toError(e))
-      ),
-      write: (value: boolean) => TE.tryCatch(
-         () => gpiop.write(channel, value), 
-        e => new RaspberryPiWriteError('rpi write error', E.toError(e))
-      ),
-      destroy: () => TE.tryCatch(
-        gpiop.destroy, 
-        e => new RaspberryPiDestroyError('rpi destroy error', E.toError(e))
-      ),
-    }))
+    TE.fromEither,
+    TE.map(
+      (pin): Gpio => ({
+        read: pipe(
+          TE.taskify(pin.read.bind(pin)),
+          IO.map(
+            TE.mapLeft(
+              e => new RaspberryPiReadError("rpi read error", E.toError(e))
+            )
+          )
+        ),
+        write: (state: boolean) =>
+          T.fromIO(() =>
+            E.tryCatch(
+              () => (state ? pin.on() : pin.off()),
+              e => new RaspberryPiWriteError("rpi write error", E.toError(e))
+            )
+          ),
+        destroy: () =>
+          T.fromIO(() =>
+            E.tryCatch(
+              () => pin.close(),
+              e =>
+                new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
+            )
+          )
+      })
+    )
   )
 
-export const gpioDestroy = () => TE.tryCatch(
-  gpiop.destroy, 
-  e => new RaspberryPiDestroyError('rpi destroy error', E.toError(e))
-)
+export const gpioDestroy = () => async () =>
+  E.tryCatch(
+    () => arrgpio.close(),
+    e => new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
+  )
 
 export interface Gpio {
-  read: () => TE.TaskEither<RaspberryPiReadError, boolean>
+  read: () => TE.TaskEither<RaspberryPiReadError, unknown>
   write: (value: boolean) => TE.TaskEither<RaspberryPiWriteError, unknown>
   destroy: () => TE.TaskEither<RaspberryPiDestroyError, unknown>
 }

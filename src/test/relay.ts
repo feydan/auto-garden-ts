@@ -4,7 +4,7 @@ import { constVoid, pipe } from "fp-ts/lib/function"
 import { gpio, gpioDestroy } from "../tools/raspberry-pi/gpio"
 import { observe } from "../tools/utils"
 
-const pins = [5, 6, 13, 26]
+const pins = [29, 31, 15]
 const testSeconds = 2
 
 const delay = (seconds: number) => () =>

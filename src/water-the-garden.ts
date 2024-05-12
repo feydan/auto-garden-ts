@@ -55,5 +55,6 @@ const doWaterTheGarden = (month: string, rainThreshold?: 5 | undefined) =>
 
 pipe(
   D.create().toLocaleString("default", { month: "long" }),
-  doWaterTheGarden
+  doWaterTheGarden,
+  TE.mapLeft(console.dir)
 )()

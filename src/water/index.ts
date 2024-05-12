@@ -6,12 +6,12 @@ import * as O from "fp-ts/lib/Option"
 import * as T from "fp-ts/lib/Task"
 import * as TE from "fp-ts/lib/TaskEither"
 import { constVoid, pipe } from "fp-ts/lib/function"
-import { info } from "src/tools/logger/index"
-import { Logger } from "src/tools/logger/types"
-import { MqttConnectError, MqttPublishError } from "src/tools/mqtt/errors"
-import { RaspberryPiWriteError } from "src/tools/raspberry-pi/errors"
+import { info } from "../tools/logger/index"
+import { Logger } from "../tools/logger/types"
 import { mqttPublish } from "../tools/mqtt"
+import { MqttConnectError, MqttPublishError } from "../tools/mqtt/errors"
 import { MqttEnvConfig } from "../tools/mqtt/types"
+import { RaspberryPiWriteError } from "../tools/raspberry-pi/errors"
 import { Gpio } from "../tools/raspberry-pi/gpio"
 import { didRainInPastTwoDays } from "../track-weather/index"
 import { RainStore } from "../track-weather/types"
@@ -67,7 +67,7 @@ export const waterTheGarden = (
 export const waterForHours = (hours: number) =>
   pipe(
     RTE.ask<{ gpio: Gpio }>(),
-    RTE.chainW(({ gpio }) =>
+    RTE.chainTaskEitherK(({ gpio }) =>
       pipe(
         TE.rightIO(D.now),
         TE.chainFirst(() => gpio.write(true)),
@@ -77,7 +77,6 @@ export const waterForHours = (hours: number) =>
           endTime: D.now(),
           hours
         })),
-        RTE.fromTaskEither
       )
     )
   )
