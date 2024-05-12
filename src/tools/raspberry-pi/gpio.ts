@@ -59,7 +59,7 @@ export const gpio = (channel: number, direction: PinDirection) =>
 
 export const gpioDestroy = () => async () =>
   E.tryCatch(
-    arrgpio.close(),
+    () => arrgpio.close(),
     e => new RaspberryPiDestroyError("rpi destroy error", E.toError(e))
   )
 
