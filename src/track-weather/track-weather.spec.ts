@@ -29,4 +29,22 @@ describe("track-weather", () => {
     expect(didRainInPastTwoDays(17)(rainStore)).toBe(true)
     expect(didRainInPastTwoDays(18)(rainStore)).toBe(false)
   })
+
+  it("does not collapse readings that are 12 hours apart into the same bucket", () => {
+    const now = D.now()
+    const twelveHours = 3600000 * 12
+
+    // Two readings exactly 12 hours apart: 10mm rain, then 0mm
+    // With 12-hour clock format (hh) these would share a key and average to 5mm
+    // With 24-hour clock format (HH) they are separate and sum to 10mm
+    const rainStore = {
+      rainStore: {
+        [now - twelveHours]: 10,
+        [now]: 0
+      }
+    }
+
+    // 10mm total: should prevent watering at 6mm threshold
+    expect(didRainInPastTwoDays(6)(rainStore)).toBe(true)
+  })
 })
